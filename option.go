@@ -26,9 +26,9 @@ var (
 )
 
 type Options struct {
-	// Filename is the file to write logs to.
+	// File is the file to write logs to.
 	// It uses <process name>.log in os.TempDir() if empty.
-	Filename string `json:"filename" toml:"filename" yaml:"filename"`
+	File string `json:"file" toml:"file" yaml:"file"`
 
 	// RotatePeriod is time period for rotate log.
 	// It supports hourly, daily, weekly, monthly.
@@ -87,52 +87,52 @@ func (o *Options) Apply() error {
 			o.MaxArchiveDays = DefaultMaxArchiveDays
 		}
 	}
-	if o.Filename == "" {
+	if o.File == "" {
 		name := filepath.Base(os.Args[0]) + ".log"
-		o.Filename = filepath.Join(os.TempDir(), name)
+		o.File = filepath.Join(os.TempDir(), name)
 	}
 	return nil
 }
 
-type OptionFunc func(*Options)
+type Option func(*Options)
 
-func Filename(name string) OptionFunc {
+func File(name string) Option {
 	return func(opts *Options) {
-		opts.Filename = name
+		opts.File = name
 	}
 }
 
-func RotatePeriod(p period) OptionFunc {
+func RotatePeriod(p period) Option {
 	return func(opts *Options) {
 		opts.RotatePeriod = string(p)
 	}
 }
 
-func RotateSize(size string) OptionFunc {
+func RotateSize(size string) Option {
 	return func(opts *Options) {
 		opts.RotateSize = size
 	}
 }
 
-func ArchiveTimeFormat(format string) OptionFunc {
+func ArchiveTimeFormat(format string) Option {
 	return func(opts *Options) {
 		opts.ArchiveTimeFormat = format
 	}
 }
 
-func MaxArchives(number int) OptionFunc {
+func MaxArchives(number int) Option {
 	return func(opts *Options) {
 		opts.MaxArchives = number
 	}
 }
 
-func MaxArchiveDays(days int) OptionFunc {
+func MaxArchiveDays(days int) Option {
 	return func(opts *Options) {
 		opts.MaxArchiveDays = days
 	}
 }
 
-func Compress(compress bool) OptionFunc {
+func Compress(compress bool) Option {
 	return func(opts *Options) {
 		opts.Compress = compress
 	}

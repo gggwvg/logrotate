@@ -27,7 +27,7 @@ type Logger struct {
 }
 
 // NewLogger creates a new logger
-func NewLogger(opts ...OptionFunc) (*Logger, error) {
+func NewLogger(opts ...Option) (*Logger, error) {
 	var options Options
 	for _, o := range opts {
 		o(&options)
@@ -83,7 +83,7 @@ func (l *Logger) shouldRotate(size int64) bool {
 }
 
 func (l *Logger) openFile(length int64) (err error) {
-	info, err := os.Stat(l.opts.Filename)
+	info, err := os.Stat(l.opts.File)
 	if os.IsNotExist(err) {
 		return l.openNewFile()
 	}
@@ -93,7 +93,7 @@ func (l *Logger) openFile(length int64) (err error) {
 	if l.shouldRotate(info.Size() + length) {
 		return l.rotate()
 	}
-	file, err := os.OpenFile(l.opts.Filename, os.O_APPEND|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(l.opts.File, os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		return
 	}
@@ -103,22 +103,22 @@ func (l *Logger) openFile(length int64) (err error) {
 }
 
 func (l *Logger) openNewFile() error {
-	dir := filepath.Dir(l.opts.Filename)
+	dir := filepath.Dir(l.opts.File)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return fmt.Errorf("can't make directories for new logfile, error(%v)", err)
 	}
 	mode := os.FileMode(0644)
-	info, err := os.Stat(l.opts.Filename)
+	info, err := os.Stat(l.opts.File)
 	if err == nil {
 		mode = info.Mode()
-		an := archiveName(l.opts.Filename, l.opts.ArchiveTimeFormat)
-		if err = os.Rename(l.opts.Filename, an); err != nil {
+		an := archiveName(l.opts.File, l.opts.ArchiveTimeFormat)
+		if err = os.Rename(l.opts.File, an); err != nil {
 			return fmt.Errorf("can't archive(%s) error(%v)", an, err)
 		}
 	}
-	f, err := os.OpenFile(l.opts.Filename, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, mode)
+	f, err := os.OpenFile(l.opts.File, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, mode)
 	if err != nil {
-		return fmt.Errorf("can't open new log file(%s) error(%v)", l.opts.Filename, err)
+		return fmt.Errorf("can't open new log file(%s) error(%v)", l.opts.File, err)
 	}
 	l.file = f
 	l.size = 0
@@ -191,7 +191,7 @@ func (l *Logger) handleArchives() error {
 }
 
 func (l *Logger) archives() (logs []logFile, err error) {
-	dir := filepath.Dir(l.opts.Filename)
+	dir := filepath.Dir(l.opts.File)
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
 		return
@@ -199,7 +199,7 @@ func (l *Logger) archives() (logs []logFile, err error) {
 	var (
 		t           time.Time
 		tf          = l.opts.ArchiveTimeFormat
-		prefix, ext = splitFilename(l.opts.Filename)
+		prefix, ext = splitFilename(l.opts.File)
 	)
 	prefix += "-"
 	for _, f := range files {

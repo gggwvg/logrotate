@@ -26,8 +26,8 @@ func main() {
 	logger.Close()
 
 	// specify a log file
-	opts := []logrotate.OptionFunc{
-		logrotate.Filename("/tmp/test.log"),
+	opts := []logrotate.Option{
+		logrotate.File("/tmp/test.log"),
 	}
 	logger, err = logrotate.NewLogger(opts...)
 	if err != nil {

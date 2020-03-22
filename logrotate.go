@@ -24,6 +24,8 @@ type Logger struct {
 	cron *crontab.Crontab
 	size int64
 	mu   sync.Mutex
+	once sync.Once
+	ch   chan bool
 }
 
 // NewLogger creates a new logger
@@ -147,11 +149,20 @@ func (l *Logger) rotate() error {
 	if err := l.openNewFile(); err != nil {
 		return err
 	}
-	go func() {
-		if e := l.handleArchives(); e != nil {
-			println(e.Error())
-		}
-	}()
+	l.once.Do(func() {
+		l.ch = make(chan bool, 1)
+		go func() {
+			for range l.ch {
+				if e := l.handleArchives(); e != nil {
+					println(e.Error())
+				}
+			}
+		}()
+	})
+	select {
+	case l.ch <- true:
+	default:
+	}
 	return nil
 }
 
@@ -166,8 +177,7 @@ func (l *Logger) handleArchives() error {
 	}
 	var remove, remain []logFile
 	if l.opts.MaxArchiveDays > 0 {
-		diff := time.Duration(int64(24*time.Hour) * int64(l.opts.MaxArchiveDays))
-		cutoff := time.Now().Add(-1 * diff)
+		cutoff := time.Now().Add(-1 * l.opts.maxArchiveDuration)
 		for _, f := range files {
 			if f.timestamp.Before(cutoff) {
 				remove = append(remove, f)
@@ -220,7 +230,7 @@ func (l *Logger) archives() ([]logFile, error) {
 			logs = append(logs, logFile{f, t, dir})
 			continue
 		}
-		if t, err = timeFromName(tf, f.Name(), prefix, compressSuffix); err == nil {
+		if t, err = timeFromName(tf, f.Name(), prefix, ext+compressSuffix); err == nil {
 			logs = append(logs, logFile{f, t, dir})
 			continue
 		}

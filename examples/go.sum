@@ -1,6 +1,4 @@
 github.com/gggwvg/crontab v1.0.0 h1:9xO+wP/ww6jsKVzJVCcogHg/5+34+TUjRT7PgKVAbv4=
 github.com/gggwvg/crontab v1.0.0/go.mod h1:ssMJcuUJJrKnYDQx9axiUdbGaR/cb0bA6Ooc0lQ7KbE=
-github.com/gggwvg/logrotate v0.0.0-20200322090724-eacc753f7387 h1:GuEkB/XFsW/DYHWXuaK1rgF8ynRdNgyW4xM2Pha5pKg=
-github.com/gggwvg/logrotate v0.0.0-20200322090724-eacc753f7387/go.mod h1:Kl1YW3avny76weFIyF2OruUKG3dE2m439Asy5fk84Ho=
-github.com/gggwvg/logrotate v0.0.0-20200322093534-047edb555344 h1:l4xBofyC/Sq/OdnyC3JlYgjqFpRgGi5KlaasuHCRztI=
-github.com/gggwvg/logrotate v0.0.0-20200322093534-047edb555344/go.mod h1:Kl1YW3avny76weFIyF2OruUKG3dE2m439Asy5fk84Ho=
+github.com/gggwvg/logrotate v0.0.0-20200322120932-799285fd8add h1:6SK7ucjiL1G5CQt796pVDtK7iLBC3OHRmGnLAYPTyWw=
+github.com/gggwvg/logrotate v0.0.0-20200322120932-799285fd8add/go.mod h1:Kl1YW3avny76weFIyF2OruUKG3dE2m439Asy5fk84Ho=

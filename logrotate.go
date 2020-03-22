@@ -49,7 +49,7 @@ func (l *Logger) Write(bs []byte) (n int, err error) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	wl := int64(len(bs))
-	if wl > l.opts.rotateSize {
+	if l.shouldRotate(wl) {
 		err = fmt.Errorf("write length(%d) exceeds maximum file size(%d)", wl, l.opts.rotateSize)
 		return
 	}

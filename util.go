@@ -2,7 +2,6 @@ package logrotate
 
 import (
 	"compress/gzip"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -59,24 +58,24 @@ func stringToBytes(s string) (bytes int64, err error) {
 
 func archiveName(name string, timeFormat string) string {
 	dir := filepath.Dir(name)
-	filename := filepath.Base(name)
-	prefix, ext := splitFilename(filename)
+	prefix, ext := splitFilename(name)
 	t := time.Now().Format(timeFormat)
 	return filepath.Join(dir, fmt.Sprintf("%s-%s%s", prefix, t, ext))
 }
 
 func splitFilename(name string) (prefix, ext string) {
-	ext = filepath.Ext(name)
-	prefix = name[:len(name)-len(ext)]
+	filename := filepath.Base(name)
+	ext = filepath.Ext(filename)
+	prefix = filename[:len(filename)-len(ext)]
 	return
 }
 
 func timeFromName(timeFormat, filename, prefix, ext string) (time.Time, error) {
 	if !strings.HasPrefix(filename, prefix) {
-		return time.Time{}, errors.New("mismatched prefix")
+		return time.Time{}, fmt.Errorf("mismatched prefix(%s) filename(%s)", prefix, filename)
 	}
 	if !strings.HasSuffix(filename, ext) {
-		return time.Time{}, errors.New("mismatched extension")
+		return time.Time{}, fmt.Errorf("mismatched extension(%s) filename(%s)", ext, filename)
 	}
 	ts := filename[len(prefix) : len(filename)-len(ext)]
 	return time.Parse(timeFormat, ts)

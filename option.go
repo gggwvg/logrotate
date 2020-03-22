@@ -20,7 +20,7 @@ const (
 )
 
 var (
-	DefaultArchiveTimeFormat = "2006-01-02_15:04:05"
+	DefaultArchiveTimeFormat = "2006-01-02_15:04:05.000"
 	DefaultMaxArchives       = 100
 	DefaultMaxArchiveDays    = 14
 )
@@ -76,7 +76,7 @@ func (o *Options) Apply() error {
 			return errors.New("invalid rotate period")
 		}
 	}
-	if o.RotateSize != "" && o.RotatePeriod != "" {
+	if o.RotateSize != "" || o.RotatePeriod != "" {
 		if o.ArchiveTimeFormat == "" {
 			o.ArchiveTimeFormat = DefaultArchiveTimeFormat
 		}

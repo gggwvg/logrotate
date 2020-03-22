@@ -33,7 +33,7 @@ func Test_splitFilename(t *testing.T) {
 		WantExt    string
 	}{
 		{Name: "tmp.log", WantPrefix: "tmp", WantExt: ".log"},
-		{Name: "/tmp/tmp.log", WantPrefix: "/tmp/tmp", WantExt: ".log"},
+		{Name: "/tmp/tmp.log", WantPrefix: "tmp", WantExt: ".log"},
 	}
 	for _, c := range cases {
 		t.Run(c.Name, func(t *testing.T) {

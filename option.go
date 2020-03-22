@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 type period string
@@ -50,8 +51,9 @@ type Options struct {
 	// using gzip. The default is not to perform compression.
 	Compress bool `json:"compress" toml:"compress" yaml:"compress"`
 
-	rotateSize int64
-	cron       string
+	rotateSize         int64
+	cron               string
+	maxArchiveDuration time.Duration
 }
 
 func (o *Options) Apply() error {
@@ -86,6 +88,7 @@ func (o *Options) Apply() error {
 		if o.MaxArchiveDays <= 0 {
 			o.MaxArchiveDays = DefaultMaxArchiveDays
 		}
+		o.maxArchiveDuration = time.Duration(int64(24*time.Hour) * int64(o.MaxArchiveDays))
 	}
 	if o.File == "" {
 		name := filepath.Base(os.Args[0]) + ".log"

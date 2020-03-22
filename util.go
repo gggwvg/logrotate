@@ -14,16 +14,6 @@ import (
 )
 
 const (
-	BYTE = 1 << (10 * iota)
-	KILOBYTE
-	MEGABYTE
-	GIGABYTE
-	TERABYTE
-	PETABYTE
-	EXABYTE
-)
-
-const (
 	compressSuffix = ".gz"
 )
 
@@ -50,17 +40,17 @@ func stringToBytes(s string) (bytes int64, err error) {
 	}
 	switch unit {
 	case "E", "EB", "EIB":
-		bytes = bytes * EXABYTE
+		bytes *= 1 << 60
 	case "P", "PB", "PIB":
-		bytes = bytes * PETABYTE
+		bytes *= 1 << 50
 	case "T", "TB", "TIB":
-		bytes = bytes * TERABYTE
+		bytes *= 1 << 40
 	case "G", "GB", "GIB":
-		bytes = bytes * GIGABYTE
+		bytes *= 1 << 30
 	case "M", "MB", "MIB":
-		bytes = bytes * MEGABYTE
+		bytes *= 1 << 20
 	case "K", "KB", "KIB":
-		bytes = bytes * KILOBYTE
+		bytes *= 1 << 10
 	case "B":
 	default:
 	}

@@ -35,6 +35,7 @@ func NewLogger(opts ...Option) (*Logger, error) {
 	if err := options.Apply(); err != nil {
 		return nil, err
 	}
+	println("logs to " + options.File)
 	logger := &Logger{opts: &options}
 	if options.cron != "" {
 		logger.cron = crontab.New()
@@ -72,6 +73,13 @@ func (l *Logger) Write(bs []byte) (n int, err error) {
 func (l *Logger) Close() error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
+	if l.file == nil {
+		return nil
+	}
+	return l.close()
+}
+
+func (l *Logger) close() error {
 	if l.file == nil {
 		return nil
 	}
@@ -125,6 +133,7 @@ func (l *Logger) openNewFile() error {
 	return nil
 }
 
+// Rotate cut logs by rules
 func (l *Logger) Rotate() error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -132,7 +141,7 @@ func (l *Logger) Rotate() error {
 }
 
 func (l *Logger) rotate() error {
-	if err := l.Close(); err != nil {
+	if err := l.close(); err != nil {
 		return err
 	}
 	if err := l.openNewFile(); err != nil {
@@ -148,7 +157,7 @@ func (l *Logger) rotate() error {
 
 func (l *Logger) handleArchives() error {
 	var lastErr error
-	if l.opts.rotateSize == 0 && l.opts.RotatePeriod == "" {
+	if l.opts.rotateSize == 0 && l.opts.cron == "" {
 		return nil
 	}
 	files, err := l.archives()
@@ -190,14 +199,15 @@ func (l *Logger) handleArchives() error {
 	return lastErr
 }
 
-func (l *Logger) archives() (logs []logFile, err error) {
+func (l *Logger) archives() ([]logFile, error) {
 	dir := filepath.Dir(l.opts.File)
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
-		return
+		return nil, err
 	}
 	var (
 		t           time.Time
+		logs        []logFile
 		tf          = l.opts.ArchiveTimeFormat
 		prefix, ext = splitFilename(l.opts.File)
 	)
@@ -216,7 +226,7 @@ func (l *Logger) archives() (logs []logFile, err error) {
 		}
 	}
 	sort.Sort(byTime(logs))
-	return
+	return logs, nil
 }
 
 type logFile struct {
